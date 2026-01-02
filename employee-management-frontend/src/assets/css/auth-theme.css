@@ -1,0 +1,338 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+
+/* ================= GLOBAL AUTH BACKGROUND =================
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, #1f2937, #020617 60%),
+    linear-gradient(135deg, #020617, #020617);
+  font-family: 'Poppins', sans-serif;
+} */
+
+/* ================= CONTAINERS ================= */
+.login-container,
+.forgot-container,
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 100vh; /* 🔧 safer than height: 100vh */
+  padding: 10px;
+}
+
+/* ================= GLASS CARD ================= */
+.login-box,
+.forgot-box,
+.auth-box {
+  width: 340px;
+  padding: 36px 32px;
+  border-radius: 22px;
+
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+
+  box-sizing: border-box; /* 🔧 SAFE MICRO-FIX */
+
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+/* ================= AVATAR ================= */
+.avatar {
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 5px;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+.avatar i {
+  font-size: 36px;
+  color: #60a5fa;
+}
+
+/* ================= TITLES ================= */
+.login-title,
+.forgot-title,
+.auth-title {
+  display: inline-block;
+  margin: 10px auto 26px;
+  text-align: center;
+
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+
+  color: #60a5fa;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-title::after,
+.forgot-title::after,
+.auth-title::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 2px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(96,165,250,0.9),
+    rgba(147,197,253,0.6)
+  );
+}
+
+/* ================= INPUT GROUP ================= */
+.input-group {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.input-group i.fa-envelope,
+.input-group i.fa-lock {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cbd5f5;
+  pointer-events: none;
+}
+
+.password-toggle,
+.input-group i.fa-eye,
+.input-group i.fa-eye-slash {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  cursor: pointer;
+}
+
+.password-toggle:hover,
+.input-group i.fa-eye:hover,
+.input-group i.fa-eye-slash:hover {
+  color: #2563eb;
+}
+
+/* ================= INPUTS ================= */
+.input-group input {
+  width: 100%;
+  height: 48px;
+
+  box-sizing: border-box; /* 🔥 FIXES OVERFLOW */
+
+  padding-left: 42px;
+  padding-right: 42px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  background: rgba(255, 255, 255, 0.22);
+  color: #020617;
+
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.7),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+
+  transition: all 0.25s ease;
+}
+
+.input-group input::placeholder {
+  color: #475569;
+}
+
+.input-group input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.32);
+  border-color: #60a5fa;
+  box-shadow:
+    0 0 0 2px rgba(96, 165, 250, 0.55),
+    inset 0 1px 2px rgba(255, 255, 255, 0.85);
+}
+
+/* ================= BUTTONS ================= */
+.login-btn,
+.forgot-btn,
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  color: #fff;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.55);
+  transition: all 0.25s ease;
+}
+
+.login-btn:hover:not(:disabled),
+.forgot-btn:hover:not(:disabled),
+.auth-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.7);
+}
+
+.login-btn:disabled,
+.forgot-btn:disabled,
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= LINKS ================= */
+.forgot,
+.back-login {
+  text-align: right;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.forgot a,
+.back-login a {
+  font-size: 0.85rem;
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.forgot a:hover,
+.back-login a:hover {
+  text-decoration: underline;
+}
+
+/* ================= MESSAGES ================= */
+.success,
+.error {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 10px 28px rgba(0, 0, 0, 0.35);
+
+  animation: fadeInMsg 0.35s ease;
+}
+
+.success {
+  color: #14532d;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(34, 197, 94, 0.35),
+      rgba(34, 197, 94, 0.2)
+    );
+  border: 1px solid rgba(34, 197, 94, 0.6);
+}
+
+.error {
+  color: #7f1d1d;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.35),
+      rgba(239, 68, 68, 0.2)
+    );
+  border: 1px solid rgba(239, 68, 68, 0.6);
+}
+
+@keyframes fadeInMsg {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= BUTTON SPINNER ================= */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= AUTH TOAST (FIXED / NO LAYOUT SHIFT) ================= */
+.auth-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+
+  z-index: 9999;
+  min-width: 320px;
+  max-width: 90%;
+
+  animation:
+    toastSlideDown 0.35s ease,
+    toastFadeOut 0.35s ease 2.65s forwards;
+}
+
+/* Slide from top */
+@keyframes toastSlideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Fade out */
+@keyframes toastFadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+

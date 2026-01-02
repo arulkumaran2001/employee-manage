@@ -1,0 +1,49 @@
+# Maven / Java
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Secrets & environment
+#/src/main/resources/application.properties
+#/src/main/resources/application.yml
+#.env
+
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
+libpeerconnection.log
+testem.log
+
+# Build folders and caches
+build/
+dist/
+out-tsc/
+coverage/
+.tmp/
+.bazel-out/
+
+# Node modules
+node_modules/
+
+
+# Angular cache and build files
+.angular/
+.sass-cache/
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/
+.history/
+
+# System files
+.DS_Store
+Thumbs.db
+
+
+employee-management/src/main/resources/application.properties

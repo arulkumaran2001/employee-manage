@@ -1,0 +1,238 @@
+<!-- ================= TOP TOAST ================= -->
+<div class="auth-toast" *ngFor="let msg of toastMessages">
+  {{ msg }}
+</div>
+
+<div class="admin-dashboard hr-dashboard">
+
+  <!-- ================= HAMBURGER ================= -->
+  <div class="hamburger" (click)="toggleMenu()">☰</div>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" [class.open]="menuOpen">
+    <h3 class="sidebar-title">HR Panel</h3>
+    <ul>
+      <li (click)="showSection('dashboard')" [class.active]="currentSection==='dashboard'">🏠 Home</li>
+      <li (click)="showSection('leaveRequests')" [class.active]="currentSection==='leaveRequests'">📝 Leave Requests</li>
+      <li (click)="showSection('employees')" [class.active]="currentSection==='employees'">👥 Employees</li>
+      <li (click)="showSection('attendance')" [class.active]="currentSection==='attendance'">📅 Attendance</li>
+      <li class="logout" (click)="logout()">🚪 Logout</li>
+    </ul>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main-content">
+
+    <!-- ================= PROFILE CARD (ADMIN STYLE) ================= -->
+    <div class="profile-card">
+      <button class="logout-btn" (click)="logout()" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading; else logoutTpl">
+          Logout
+        </ng-container>
+        <ng-template #logoutTpl>
+          <span class="btn-spinner"></span>
+          Logging out...
+        </ng-template>
+      </button>
+
+      <img
+        [src]="profilePic"
+        class="profile-pic hr"
+      />
+
+      <div class="profile-info">
+        <h3>{{ name }}</h3>
+        <p>Email: {{ email }}</p>
+        <p>ID: {{ hrId }}</p>
+        <span class="role-badge hr">{{ role }}</span>
+      </div>
+    </div>
+
+    <!-- ================= DASHBOARD CARDS (ADMIN STYLE) ================= -->
+    <div *ngIf="currentSection === 'dashboard'" class="dashboard-cards">
+      <div class="card" (click)="showSection('leaveRequests')">
+        Leave Requests
+      </div>
+
+      <div class="card" (click)="showSection('employees')">
+        Employees
+      </div>
+
+      <div class="card" (click)="showSection('attendance')">
+        Attendance
+      </div>
+    </div>
+
+    <!-- ================= LEAVE REQUESTS ================= -->
+    <section *ngIf="currentSection === 'leaveRequests'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Leave Requests</h2>
+
+      <table *ngIf="leaveRequests.length">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let l of leaveRequests">
+            <td>{{ l.employeeUsername }}</td>
+            <td>{{ l.startDate | date:'mediumDate' }}</td>
+            <td>{{ l.endDate | date:'mediumDate' }}</td>
+            <td>{{ l.reason }}</td>
+            <td>{{ l.status }}</td>
+
+            <td>
+              <ng-container *ngIf="l.status === 'PENDING'; else doneTpl">
+
+                <button
+                  class="approve"
+                  [disabled]="isLoading"
+                  (click)="updateLeaveStatus(l.id!, 'APPROVED')">
+
+                  <ng-container *ngIf="!isLoading; else approveTpl">
+                    Approve
+                  </ng-container>
+
+                  <ng-template #approveTpl>
+                    <span class="btn-spinner"></span>
+                    Updating...
+                  </ng-template>
+                </button>
+
+                <button
+                  class="reject"
+                  [disabled]="isLoading"
+                  (click)="updateLeaveStatus(l.id!, 'REJECTED')">
+
+                  <ng-container *ngIf="!isLoading; else rejectTpl">
+                    Reject
+                  </ng-container>
+
+                  <ng-template #rejectTpl>
+                    <span class="btn-spinner"></span>
+                    Updating...
+                  </ng-template>
+                </button>
+
+              </ng-container>
+
+              <ng-template #doneTpl>
+                <span *ngIf="l.status === 'APPROVED'">✅</span>
+                <span *ngIf="l.status === 'REJECTED'">❌</span>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!leaveRequests.length">No leave requests found.</p>
+    </section>
+
+    <!-- ================= EMPLOYEES ================= -->
+    <section *ngIf="currentSection === 'employees'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Employees</h2>
+
+      <table *ngIf="employees.length">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Salary</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let e of employees">
+            <td>{{ e.id }}</td>
+            <td>{{ e.name }}</td>
+            <td>{{ e.email }}</td>
+            <td>{{ e.status }}</td>
+            <td>{{ e.salary || '-' }}</td>
+            <td>
+              <button (click)="openAttendanceModal(e)" [disabled]="isLoading">
+                <ng-container *ngIf="!isLoading; else viewTpl">
+                  View
+                </ng-container>
+
+                <ng-template #viewTpl>
+                  <span class="btn-spinner"></span>
+                  Loading...
+                </ng-template>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!employees.length">No employees found.</p>
+    </section>
+
+    <!-- ================= ATTENDANCE ================= -->
+    <section *ngIf="currentSection === 'attendance'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Employee Attendance</h2>
+
+      <table *ngIf="filteredAttendance.length">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let a of filteredAttendance">
+            <td>{{ a.employeeId }}</td>
+            <td>{{ a.employeeName }}</td>
+            <td>{{ a.date | date:'mediumDate' }}</td>
+            <td>{{ a.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!filteredAttendance.length">No records found.</p>
+    </section>
+
+    <!-- ================= ATTENDANCE MODAL ================= -->
+    <div class="modal" *ngIf="showAttendanceModal" (click)="closeAttendanceModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>{{ selectedEmployee?.name }} – Attendance</h3>
+
+        <table>
+          <tr *ngFor="let a of attendanceRecords">
+            <td>{{ a.date | date:'mediumDate' }}</td>
+            <td>{{ a.status }}</td>
+          </tr>
+        </table>
+
+        <button (click)="closeAttendanceModal()" [disabled]="isLoading">
+          <ng-container *ngIf="!isLoading; else closeTpl">
+            Close
+          </ng-container>
+
+          <ng-template #closeTpl>
+            <span class="btn-spinner"></span>
+            Closing...
+          </ng-template>
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>

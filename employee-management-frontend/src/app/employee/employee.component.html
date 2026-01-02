@@ -1,0 +1,257 @@
+<!-- ================= TOP TOAST ================= -->
+<div class="auth-toast" *ngFor="let toast of toasts">
+  {{ toast.message }}
+</div>
+
+<div class="admin-dashboard employee-dashboard">
+
+  <!-- ================= HAMBURGER ================= -->
+  <div class="hamburger" (click)="toggleMenu()">☰</div>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" [class.open]="menuOpen">
+    <ul>
+      <li (click)="showSection('dashboard')" [class.active]="currentSection==='dashboard'">
+        🏠 Home
+      </li>
+      <li (click)="showSection('profile')" [class.active]="currentSection==='profile'">
+        👤 Profile
+      </li>
+      <li (click)="showSection('leaveApply')" [class.active]="currentSection==='leaveApply'">
+        📝 Leave Apply
+      </li>
+      <li (click)="showSection('leaveHistory')" [class.active]="currentSection==='leaveHistory'">
+        📄 Leave History
+      </li>
+      <li (click)="showSection('attendanceHistory')" [class.active]="currentSection==='attendanceHistory'">
+        📅 Attendance History
+      </li>
+      <li class="logout" (click)="logout()">🚪 Logout</li>
+    </ul>
+  </aside>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-content">
+
+    <!-- ================= PROFILE CARD (ADMIN STYLE) ================= -->
+<div class="profile-card">
+
+  <!-- LOGOUT BUTTON (Admin/HR style) -->
+  <button
+    class="logout-btn"
+    (click)="logout()"
+    [disabled]="loading">
+
+    <ng-container *ngIf="!loading; else logoutTpl">
+      Logout
+    </ng-container>
+
+    <ng-template #logoutTpl>
+      <span class="btn-spinner"></span>
+      Logging out...
+    </ng-template>
+  </button>
+
+  <img
+    [src]="profilePic"
+    class="profile-pic"
+    [ngClass]="roleClass"
+    crossorigin="anonymous"
+  />
+
+  <div class="profile-info">
+    <h3>{{ name }}</h3>
+    <p>Email: {{ email }}</p>
+    <p>ID: {{ employeeId }}</p>
+    <span class="role-badge" [ngClass]="roleClass">{{ role }}</span>
+  </div>
+
+</div>
+
+
+    <!-- Attendance Today – Priority Card -->
+<div *ngIf="currentSection === 'dashboard'" class="dashboard-cards single-card">
+  <div class="card attendance-card">
+    <h3>Attendance Today</h3>
+    <p [ngClass]="todayAttendanceStatus?.toLowerCase()">
+      {{ todayAttendanceStatus || 'Not marked' }}
+    </p>
+    <button
+      (click)="markTodayAttendance()"
+      [disabled]="todayAttendanceStatus !== ''">
+      Mark Attendance
+    </button>
+  </div>
+</div>
+
+<!-- Main Dashboard Navigation Cards -->
+<div *ngIf="currentSection === 'dashboard'" class="dashboard-cards">
+  <div class="card" (click)="showSection('leaveApply')">Leave Apply</div>
+  <div class="card" (click)="showSection('leaveHistory')">Leave History</div>
+  <div class="card" (click)="showSection('attendanceHistory')">Attendance History</div>
+</div>
+
+
+    <!-- ================= LEAVE APPLY ================= -->
+<div *ngIf="currentSection === 'leaveApply'" class="page-section">
+
+  <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+  <div class="card-layout">
+    <h2>Apply for Leave</h2>
+
+    <form
+      class="leave-form"
+      (submit)="submitLeaveRequest(); $event.preventDefault()"
+    >
+
+      <label>
+        Start Date
+        <input
+          type="date"
+          [(ngModel)]="newLeave.startDate"
+          name="startDate"
+          required
+        />
+      </label>
+
+      <label>
+        End Date
+        <input
+          type="date"
+          [(ngModel)]="newLeave.endDate"
+          name="endDate"
+          required
+        />
+      </label>
+
+      <label>
+        Reason
+        <textarea
+          [(ngModel)]="newLeave.reason"
+          name="reason"
+          rows="3"
+          placeholder="Enter reason for leave"
+          required
+        ></textarea>
+      </label>
+
+      <!-- BUTTON BELOW TEXTAREA -->
+      <button type="submit" [disabled]="loading">
+        <ng-container *ngIf="!loading; else leaveLoadingTpl">
+          Apply
+        </ng-container>
+
+        <ng-template #leaveLoadingTpl>
+          <span class="btn-spinner"></span>
+          Submitting...
+        </ng-template>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+
+    <!-- ================= LEAVE HISTORY ================= -->
+    <section *ngIf="currentSection === 'leaveHistory'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Leave History</h2>
+
+      <table *ngIf="leaveRequests.length">
+        <thead>
+          <tr>
+            <th>Start</th>
+            <th>End</th>
+            <th>Reason</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let l of leaveRequests">
+            <td>{{ l.startDate | date }}</td>
+            <td>{{ l.endDate | date }}</td>
+            <td>{{ l.reason }}</td>
+            <td [ngClass]="l.status?.toLowerCase()">
+              {{ l.status }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!leaveRequests.length">No leave requests found.</p>
+    </section>
+
+    <!-- ================= ATTENDANCE HISTORY ================= -->
+    <section *ngIf="currentSection === 'attendanceHistory'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Attendance Summary</h2>
+
+      <div class="dashboard-cards">
+        <div class="card">
+          <h3>Present</h3>
+          <p>{{ presentDays }}</p>
+        </div>
+
+        <div class="card">
+          <h3>Absent</h3>
+          <p>{{ absentDays }}</p>
+        </div>
+
+        <div class="card">
+          <h3>Leave</h3>
+          <p>{{ leaveDays }}</p>
+        </div>
+      </div>
+
+      <h3>Attendance Records</h3>
+
+      <table *ngIf="attendanceList.length">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let a of sortedAttendanceList">
+            <td>{{ a.date | date }}</td>
+            <td [ngClass]="a.status.toLowerCase()">
+              {{ a.status }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!attendanceList.length">No attendance records found.</p>
+    </section>
+
+    <!-- ================= PROFILE ================= -->
+    <section *ngIf="currentSection === 'profile'" class="page-section">
+      <button class="back-btn" (click)="showSection('dashboard')">← Back</button>
+
+      <h2>Profile</h2>
+
+      <div class="profile-card">
+        <img
+          [src]="profilePic"
+          class="profile-pic"
+          [ngClass]="roleClass"
+          crossorigin="anonymous"
+        />
+
+        <div class="profile-info">
+          <h3>{{ name }}</h3>
+          <p>Email: {{ email }}</p>
+          <p>ID: {{ employeeId }}</p>
+          <span class="role-badge" [ngClass]="roleClass">{{ role }}</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>

@@ -1,0 +1,78 @@
+<!-- 🔔 FIXED TOP ERROR TOAST (NO LAYOUT SHIFT) -->
+<div *ngIf="errorMessage" class="auth-toast error">
+  {{ errorMessage }}
+</div>
+
+<form autocomplete="off" (ngSubmit)="login()">
+  <div class="login-container">
+
+    <div class="login-box">
+
+      <!-- Hidden dummy fields -->
+      <input type="text" style="display:none" autocomplete="username">
+      <input type="password" style="display:none" autocomplete="new-password">
+
+      <div class="avatar">
+        <i class="fa fa-user"></i>
+      </div>
+
+      <h2 class="login-title">LOGIN</h2>
+
+      <!-- Email -->
+      <div class="input-group">
+        <i class="fa fa-envelope"></i>
+        <input
+          id="emailField"
+          type="text"
+          placeholder="Email"
+          [(ngModel)]="email"
+          name="email"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <i class="fa fa-lock"></i>
+        <input
+          id="passwordField"
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          [(ngModel)]="password"
+          name="password"
+          required
+          autocomplete="off"
+        />
+        <i
+          class="fa password-toggle"
+          [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="togglePassword()"
+        ></i>
+      </div>
+
+      <div class="forgot">
+        <a routerLink="/forgot-password">Forgot password?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button
+        id="loginButton"
+        type="submit"
+        class="login-btn"
+        [disabled]="isLoading"
+      >
+        <ng-container *ngIf="!isLoading; else loadingTpl">
+          Login
+        </ng-container>
+
+        <ng-template #loadingTpl>
+          <span class="btn-spinner"></span>
+          Logging in...
+        </ng-template>
+      </button>
+
+    </div>
+
+  </div>
+</form>

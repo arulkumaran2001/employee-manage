@@ -1,0 +1,348 @@
+<!-- ================= TOP TOAST ================= -->
+<div *ngIf="toastMessage" class="auth-toast" [ngClass]="toastType">
+  {{ toastMessage }}
+</div>
+
+<div class="admin-dashboard">
+
+  <!-- ================= LOGOUT ================= -->
+  <!-- <button class="logout-btn" (click)="logout()">Logout</button> -->
+
+  <!-- ================= PROFILE CARD ================= -->
+  <div class="profile-card">
+    <!-- ================= LOGOUT ================= -->
+  <button class="logout-btn" (click)="logout()">Logout</button>
+    <img
+      [src]="profilePic"
+      class="profile-pic"
+      [ngClass]="roleClass"
+      (click)="triggerFileInput()"
+    />
+    <div class="profile-info">
+      <h3>{{ name }}</h3>
+      <p>Email: {{ email }}</p>
+      <p>ID: {{ employeeId }}</p>
+      <span class="role-badge" [ngClass]="roleClass">{{ role }}</span>
+    </div>
+  </div>
+
+  <input
+    #profileFileInput
+    type="file"
+    hidden
+    (change)="changeProfilePic($event)"
+  />
+
+  <!-- ================= DASHBOARD ================= -->
+  <div *ngIf="currentSection === 'dashboard'" class="dashboard-cards">
+    <div class="card" (click)="switchSection('viewUsers')">View Users</div>
+    <div class="card" (click)="switchSection('addUser')">Add User</div>
+    <div class="card" (click)="switchSection('attendance')">Attendance</div>
+    <div class="card" (click)="switchSection('overrideAttendance')">Override Attendance</div>
+  </div>
+
+  <!-- ================= VIEW USERS ================= -->
+  <div *ngIf="currentSection === 'viewUsers'" class="page-section">
+    <button class="back-btn" (click)="switchSection('dashboard')">← Back</button>
+
+    <h2>All Users</h2>
+  <div class="filter-bar">
+    <input
+      type="text"
+      [(ngModel)]="searchEmail"
+      placeholder="Search by email"
+    />
+    <button (click)="searchByEmail()">Search</button>
+  </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Salary</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <!-- DATA -->
+      <tbody *ngIf="!isLoading">
+        <tr *ngFor="let user of filteredUsers">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.salary | number }}</td>
+          <td>{{ user.status }}</td>
+          <td>
+            <div class="action-buttons">
+              <button (click)="toggleStatus(user)" [disabled]="isLoading">
+  <ng-container *ngIf="!isLoading; else toggleLoadingTpl">
+    {{ user.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
+  </ng-container>
+
+  <ng-template #toggleLoadingTpl>
+    <span class="btn-spinner"></span>
+    Updating...
+  </ng-template>
+</button>
+
+
+            <button class="edit-btn" (click)="openEditModal(user)">Edit</button>
+            <button
+  class="delete-btn"
+  [disabled]="user.role === 'ADMIN'"
+  [title]="user.role === 'ADMIN' ? 'Admin user cannot be deleted' : ''"
+  (click)="deleteUser(user.id)">
+  Delete
+</button>
+            <button class="view-profile-btn" (click)="openProfileModal(user)">View</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+      <!-- SKELETON -->
+      <tbody *ngIf="isLoading">
+        <tr *ngFor="let i of [1,2,3,4,5]">
+          <td colspan="6">
+            <div class="skeleton-row"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= ADD USER ================= -->
+  <div *ngIf="currentSection === 'addUser'" class="page-section">
+    <button class="back-btn" (click)="switchSection('dashboard')">← Back</button>
+<h2>Add New User</h2>
+    <div class="leave-form">
+      
+
+      <input type="text" [(ngModel)]="newUser.name" placeholder="Name" />
+      <input type="email" [(ngModel)]="newUser.email" placeholder="Email" />
+      <input type="number" [(ngModel)]="newUser.salary" placeholder="Salary" />
+
+      <select [(ngModel)]="newUser.role">
+        <option value="EMPLOYEE">Employee</option>
+        <option value="HR">HR</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+
+      <input type="file" (change)="onNewUserPic($event)" />
+
+      <button (click)="createUser()" [disabled]="isLoading">
+  <ng-container *ngIf="!isLoading; else addUserLoadingTpl">
+    Add User
+  </ng-container>
+
+  <ng-template #addUserLoadingTpl>
+    <span class="btn-spinner"></span>
+    Creating User..
+  </ng-template>
+</button>
+
+
+    </div>
+  </div>
+
+  <!-- ================= EDIT USER MODAL ================= -->
+  <div class="modal" *ngIf="editingUser">
+    <div class="modal-content">
+      <h3>Edit User</h3>
+
+      <input type="text" [(ngModel)]="editingUser.name" placeholder="Name" />
+      <input type="email" [(ngModel)]="editingUser.email" placeholder="Email" />
+      <input type="number" [(ngModel)]="editingUser.salary" placeholder="Salary" />
+
+      <select [(ngModel)]="editingUser.role">
+        <option value="EMPLOYEE">Employee</option>
+        <option value="HR">HR</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+
+      <select [(ngModel)]="editingUser.status">
+        <option value="ACTIVE">Active</option>
+        <option value="DEACTIVATED">Inactive</option>
+      </select>
+
+      <input type="file" (change)="onEditUserPic($event)" />
+
+      <div class="modal-actions">
+        <button (click)="updateUser()" [disabled]="isLoading">
+  <ng-container *ngIf="!isLoading; else editUserLoadingTpl">
+    Save
+  </ng-container>
+
+  <ng-template #editUserLoadingTpl>
+    <span class="btn-spinner"></span>
+    Saving...
+  </ng-template>
+</button>
+
+
+        <button (click)="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PROFILE MODAL ================= -->
+  <div class="modal" *ngIf="profileModalOpen" (click)="closeProfileModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <span class="close" (click)="closeProfileModal()">&times;</span>
+      <img
+        [src]="selectedProfile?.profilePicUrl || 'assets/default-profile.png'"
+        class="profile-pic"
+      />
+      <h3>{{ selectedProfile?.name }}</h3>
+    </div>
+  </div>
+
+  <!-- ================= ATTENDANCE ================= -->
+  <div *ngIf="currentSection === 'attendance'" class="page-section">
+    <button class="back-btn" (click)="switchSection('dashboard')">← Back</button>
+
+    <h2>All Employees Attendance</h2>
+
+    <div class="filter-bar">
+      <input
+      type="text"
+      [(ngModel)]="searchAttendanceText"
+      placeholder="Search by ID or Name"
+    />
+    <input type="date" [(ngModel)]="searchAttendanceDate" />
+
+    <select [(ngModel)]="filterStatus">
+      <option value="ALL">All</option>
+      <option value="PRESENT">PRESENT</option>
+      <option value="ABSENT">ABSENT</option>
+      <option value="LEAVE">LEAVE</option>
+    </select>
+
+    <button (click)="filterAttendance()">Filter</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let a of filteredAttendance">
+          <tr (click)="toggleRow(a)">
+            <td>{{ a.employeeId }}</td>
+            <td>{{ a.employeeName }}</td>
+            <td>{{ a.date }}</td>
+            <td>{{ a.status }}</td>
+          </tr>
+          <tr *ngIf="a.showEmail">
+            <td colspan="4" class="email-row">
+              Email: {{ a.employeeEmail }}
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= OVERRIDE ATTENDANCE ================= -->
+  <div *ngIf="currentSection === 'overrideAttendance'" class="page-section">
+    <button class="back-btn" (click)="switchSection('dashboard')">← Back</button>
+
+    <h2>Override Attendance</h2>
+  <div class="filter-bar">
+    <input
+      type="text"
+      [(ngModel)]="searchAttendanceText"
+      placeholder="Search by ID or Name"
+    />
+    <input type="date" [(ngModel)]="searchAttendanceDate" />
+
+    <button (click)="filterAttendance()">Filter</button>
+  </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Override</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of filteredAttendance">
+          <td>{{ a.employeeId }}</td>
+          <td>{{ a.employeeName }}</td>
+          <td>{{ a.date }}</td>
+          <td>{{ a.status }}</td>
+          <td>
+            <button (click)="openOverrideModal(a.employeeId, a.date, a.status)">
+              Override
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= OVERRIDE MODAL ================= -->
+  <div class="modal" *ngIf="overrideModalOpen">
+    <div class="modal-content">
+      <h3>Override Attendance</h3>
+      <p>ID: {{ overrideEmployeeId }} | Date: {{ overrideDate }}</p>
+
+      <select [(ngModel)]="overrideStatus">
+        <option value="PRESENT">PRESENT</option>
+        <option value="ABSENT">ABSENT</option>
+        <option value="LEAVE">LEAVE</option>
+      </select>
+
+      <div class="modal-actions">
+        <button (click)="confirmOverride()" [disabled]="isLoading">
+  <ng-container *ngIf="!isLoading; else overrideLoadingTpl">
+    Save
+  </ng-container>
+
+  <ng-template #overrideLoadingTpl>
+    <span class="btn-spinner"></span>
+    Saving...
+  </ng-template>
+</button>
+
+        <button (click)="closeOverrideModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DELETE MODAL ================= -->
+  <div class="modal" *ngIf="deleteModalOpen">
+    <div class="modal-content">
+      <h3>Confirm Delete</h3>
+      <p>This action cannot be undone.</p>
+
+      <div class="modal-actions">
+        <button class="delete-btn" (click)="confirmDelete()" [disabled]="isLoading">
+  <ng-container *ngIf="!isLoading; else deleteLoadingTpl">
+    Yes, Delete
+  </ng-container>
+
+  <ng-template #deleteLoadingTpl>
+    <span class="btn-spinner"></span>
+    Deleting...
+  </ng-template>
+</button>
+
+        <button (click)="closeDeleteModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
